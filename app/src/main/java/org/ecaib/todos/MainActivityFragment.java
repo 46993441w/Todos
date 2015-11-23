@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +19,7 @@ import org.ecaib.todos.provider.notes.NotesColumns;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private SimpleCursorAdapter adapter;
 
@@ -49,23 +52,33 @@ public class MainActivityFragment extends Fragment {
                 startActivity(i);
             }
         });
+        getLoaderManager().initLoader(0, null, this);
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        refresh();
+    }
+    
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args){
+        return new CursorLoader(getContext(),
+                NotesColumns.CONTENT_URI,
+                null, // todas las columnas
+                null, // where
+                null, //
+                null  // orden
+        );
     }
 
-    private void refresh() {
-        Cursor cursor = getContext().getContentResolver().query(
-                NotesColumns.CONTENT_URI,
-                null,
-                null,
-                null,
-                null
-        );
-        adapter.swapCursor(cursor);
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
     }
 }
